@@ -1461,7 +1461,7 @@ extern char* rtw_initmac;
 void rtw_macaddr_cfg(struct device *dev, u8 *out, const u8 *hw_mac_addr)
 {
 #define DEFAULT_RANDOM_MACADDR 1
-	u8 mac[ETH_ALEN];
+	u8 mac[ETH_ALEN] = {0};
 	struct device_node *np = dev->of_node;
 	const unsigned char *addr;
 	int len;
@@ -1488,18 +1488,24 @@ void rtw_macaddr_cfg(struct device *dev, u8 *out, const u8 *hw_mac_addr)
 #endif
 
 	/* Use the mac address stored in the Efuse */
+	/*
+	 * modify by gouchy, delete hw mac address.
 	if (hw_mac_addr) {
 		_rtw_memcpy(mac, hw_mac_addr, ETH_ALEN);
 		goto err_chk;
 	}
+	*/
+	
 
 err_chk:
 	if (rtw_check_invalid_mac_address(mac) == _TRUE) {
 		if (np &&
 		    (addr = of_get_property(np, "local-mac-address", &len)) &&
 		    len == ETH_ALEN) {
+			printk("cgq enter local-mac-address");
 			memcpy(mac, addr, ETH_ALEN);
 		} else {
+			printk("cgq enter rtw_random32");
 			#if DEFAULT_RANDOM_MACADDR
 			DBG_871X_LEVEL(_drv_err_, "invalid mac addr:"MAC_FMT", assign random MAC\n", MAC_ARG(mac));
 			*((u32 *)(&mac[2])) = rtw_random32();
